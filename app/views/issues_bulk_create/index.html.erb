@@ -130,6 +130,7 @@ function addChild(src) {
   </tr>
 </table>
 <%= form_tag("", :id => "form1") do %>
+<label for="field_parent_issue"><%= l(:field_parent_issue) %></label>&nbsp;<input type="number" title="<%= l(:ignore_if_not) %>" name="parent_issue_id" size="10" />
 <table id="inputtbl" border=0 style="border-collapse:collapse;">
 <tr id="tblheader">
   <th><%= l(:field_tracker) %></th>

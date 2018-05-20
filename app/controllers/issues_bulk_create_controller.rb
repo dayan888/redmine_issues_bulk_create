@@ -21,10 +21,11 @@ class IssuesBulkCreateController < ApplicationController
       Issue.transaction do
         params[:rowid].each_with_index {|rowid, i|
           puts rowid, params[:tracker][i], params[:subject][i], params[:description][i], params[:user][i], params[:start_date][i], params[:due_date][i]
-          parent_issue_id = nil
           if rowid.split("-").length > 2
             parent = rowid[0..rowid.rindex("-")-1]
-            parent_issue_id = rowidHash[parent]
+            parent_issue_id = rowidHash[parent] 
+          else
+            parent_issue_id = params[:parent_issue_id] unless Issue.find_by_id(params[:parent_issue_id]) == nil
           end
           issue_id = createIssue params[:tracker][i], params[:subject][i], params[:description][i], params[:user][i], params[:start_date][i], params[:due_date][i], parent_issue_id
           rowidHash[rowid] = issue_id
