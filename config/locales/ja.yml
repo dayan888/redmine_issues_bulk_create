@@ -1,0 +1,6 @@
+ja:
+  label_issues_bulk_create: チケット一括
+  project_module_issues_bulk_create: チケット一括作成プラグイン
+  permission_issues_bulk_create: チケットの一括作成
+  msg_start_after_due: 期日は開始日の後でなければなりません。
+  msg_registered: 登録が完了しました。

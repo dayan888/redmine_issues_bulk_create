@@ -1,0 +1,150 @@
+<h2> <%=h l :label_issues_bulk_create %> </h2>
+
+<script>
+
+var datepickerOptions={dateFormat: 'yy-mm-dd', firstDay: <%= @start_of_week %>, showOn: 'button', buttonImageOnly: true, buttonImage: '/images/calendar.png', showButtonPanel: true, showWeek: true, showOtherMonths: true, selectOtherMonths: true, changeMonth: true, changeYear: true, beforeShow: beforeShowDatePicker};
+
+$(function(){
+
+
+  setTimeout(function() {
+    addChild();
+  }, 500);
+
+  $('#form1').submit(function(event) {
+    
+    var valid = true;
+    $('#inputtbl').find("tr").each (function(){
+      var startDate = $(this).find("input[name^='start_date']").eq(0);
+      var dueDate = $(this).find("input[name^='due_date']").eq(0);
+      if (startDate && dueDate && startDate.val() != "" && dueDate.val() != "") {
+          if (startDate.val() > dueDate.val()) {
+            alert("<%= l(:msg_start_after_due) %>");
+            valid = false;
+            return;
+          }
+      }
+    });
+  
+    if (valid) {
+      $("input[type='submit']").attr("disabled", "disabled");
+      $("#progress").show();
+      $(this).off('submit');
+      $(this).submit();
+    }
+
+    return false;
+    
+  });
+
+});
+
+function remove(src) {
+    var parentTr = $(src).parent().parent();
+    var parentId = parentTr.attr("id");
+    parentTr.parent().find("tr").each(function() {
+      if ($(this).attr("id") == parentId || $(this).attr("id").indexOf(parentId + "-") == 0) {
+        $(this).remove();
+      }
+    });
+}
+
+function addChild(src) {
+  if (src) {
+    var parentTr = $(src).parent().parent();
+    var parentId = parentTr.attr("id");
+  }
+  else {
+    var parentTr = $("#tblheader");
+    var parentId = "row";
+  }
+  var lastNode;
+  parentTr.parent().find("tr").each(function() {
+    if ($(this).attr("id") == parentId || $(this).attr("id").indexOf(parentId + "-") == 0) {
+      lastNode = this;
+    }
+  });
+
+  if (lastNode) {
+    var lastNodeId = $(lastNode).attr("id");
+    console.log(lastNodeId, parentId); 
+    var no = (lastNodeId==parentId)? 0: Number(lastNodeId.substring(lastNodeId.lastIndexOf("-") + 1));
+    var newNodeId = parentId + "-" + (no+1);
+  }
+  else {
+    lastNode = parentTr;
+    var newNodeId = "row-1";
+  }
+
+  var newNode = $("#rowtemplate").clone();
+  newNode.attr("id", newNodeId);
+  var level = "";
+  for (var i=0;i<newNodeId.split("-").length - 2;i++) {
+    level += "⇨";
+  }  
+  newNode.find("input:first").val(newNodeId);
+  newNode.find("td:first").find("span").text(level);
+  $(lastNode).after(newNode);
+
+  newNode.find("input[name^='start_date'], input[name^='due_date']").each(function() {
+    $(this).attr("id", $(this).attr("id") + newNodeId.substring("row".length)); 
+    $(this).addClass("date").datepicker(datepickerOptions);
+  });
+  
+}
+
+</script>
+<style>
+
+#progress {
+ display: none;
+ color: #0000ff;
+ font-size: 18px;
+ position: absolute;
+ margin-top: -100px;
+ margin-left: -100px;
+ top: 50%;
+ left: 50%;
+}
+
+</style>
+
+<% if @msg %>
+  <span style="color: red"><%= raw(@msg) %></span>
+<% end %>
+
+<div id="progress">
+  Please wait...
+</div>
+<table border=0 style="display:none;">
+  <tr id="rowtemplate">
+    <input type="hidden" name="rowid[]" />
+    <td><span></span><%= select_tag "tracker[]", options_for_select(@project.trackers.map{|o| [o.name, o.id]}), :prompt => false, :required => true  %></td>
+    <td><input name="subject[]" type="text" size="40" required /></td>
+    <td><input name="description[]" type="text" size="30" /></td>
+    <td><%= select_tag "user[]", options_for_select(@project.users.map{|o| [o.name, o.id]}, params['user'].to_i), :prompt => l(:field_assigned_to), :required => false %></td>
+    <td><%= text_field_tag "start_date[]", "", :size => 10, :disabled => false, :required => false, :pattern=>"(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))"  %></td>
+    <td><%= text_field_tag "due_date[]", "", :size => 10, :disabled => false, :required => false, :pattern=>"(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))"  %></td> 
+    <td><button type="button" onclick="addChild(this);">+</button></td>
+    <td><button type="button" onclick="remove(this);">-</button></td>
+  </tr>
+</table>
+<%= form_tag("", :id => "form1") do %>
+<table id="inputtbl" border=0 style="border-collapse:collapse;">
+<tr id="tblheader">
+  <th><%= l(:field_tracker) %></th>
+  <th><%= l(:field_subject) %></th>
+  <th><%= l(:field_description) %></th>
+  <th><%= l(:field_assigned_to) %></th>
+  <th><%= l(:field_start_date) %></th>
+  <th><%= l(:field_due_date) %></th>
+  <th><%= l(:button_add) %></th>
+  <th><%= l(:button_delete) %></th>
+</tr>
+</table>
+  <input type="button" value="<%= l(:button_add) %>" onclick="addChild();" >
+  <input type="submit" value="<%= l(:button_create) %>" >
+<% end %>
+<br><br>
+
+

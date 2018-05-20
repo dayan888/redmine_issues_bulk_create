@@ -1,0 +1,7 @@
+# English strings go here for Rails i18n
+en:
+  label_issues_bulk_create: Bulk Create
+  project_module_issues_bulk_create: Bulk Create Issues plugin
+  msg_start_after_due: due date must be greater than start date
+  msg_registered: Register completed.
+

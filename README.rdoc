@@ -1,0 +1,13 @@
+= redmine_issues_bulk_create plug-in
+
+This is a redmine plugin for bulk creating issues easily on web page without csv file import.
+The purpose is just for creating issues so it cannot register detail items.
+If you need to fill out detail information about issues, after using this plugin, update the issues manually or use import.
+
+== Installation
+
+* Clone into your plugins folder: <code>git clone https://github.com/dayan888/redmine_issues_bulk_create.git</code>
+* Run <code>bundle install</code>
+* Run <code>rake redmine:plugins:migrate RAILS_ENV=production</code>
+* Restart Redmine
+
